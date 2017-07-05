@@ -13,15 +13,6 @@ let min ?(eta=0.002) ?(epsilon=10E-8) ?(beta1=0.9) ?(beta2=0.999) ?lb ?ub ?clip 
   let tmp1 = Vec.make0 n in
   let tmp2 = Vec.make0 n in
 
-  let f_df = match clip with
-    | None -> f_df
-    | Some alpha -> (fun x g ->
-        let cost = f_df x g in
-        let g_norm = sqrt (Vec.sqr_nrm2 g) in
-        if g_norm > alpha then (printf "CLIPPING GRADIENT\n%!"; scal (alpha /. g_norm) g);
-        cost
-      ) in
-
 
   let rec iterate t cost =
     Vec.mul ~z:g2 g g |> ignore;
@@ -40,7 +31,18 @@ let min ?(eta=0.002) ?(epsilon=10E-8) ?(beta1=0.9) ?(beta2=0.999) ?lb ?ub ?clip 
     Vec.sqrt ~y:tmp1 vhat |> ignore;
     Vec.add_const epsilon ~y:tmp2 tmp1 |> ignore;
     Vec.div ~z:tmp1 mhat tmp2 |> ignore;
+
+    (* maybe clip the update tmp1 *)
+    begin match clip with
+      | None -> ()
+      | Some alpha -> 
+        let z = sqrt (Vec.sqr_nrm2 tmp1) in
+        if z > alpha then (printf "CLIPPING GRADIENT\n%!"; scal (alpha /. z) tmp1);
+    end;
+
+    (* perform the update *) 
     axpy ~alpha:(-. eta) tmp1 x;
+
     (* clip at upper and lower bounds *) 
     begin match lb with 
       | None -> ()

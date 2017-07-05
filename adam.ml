@@ -1,7 +1,7 @@
 open Lacaml.D
 
 
-let min ?(eta=0.002) ?(epsilon=10E-8) ?(beta1=0.9) ?(beta2=0.999) ~stop f_df x =
+let min ?(eta=0.002) ?(epsilon=10E-8) ?(beta1=0.9) ?(beta2=0.999) ?lb ?ub ~stop f_df x =
   let n = Vec.dim x in
   let g = Vec.make0 n in
   let g2 = Vec.make0 n in
@@ -30,6 +30,16 @@ let min ?(eta=0.002) ?(epsilon=10E-8) ?(beta1=0.9) ?(beta2=0.999) ~stop f_df x =
     Vec.add_const epsilon ~y:tmp2 tmp1 |> ignore;
     Vec.div ~z:tmp1 mhat tmp2 |> ignore;
     axpy ~alpha:(-. eta) tmp1 x;
+    (* clip at upper and lower bounds *) 
+    begin match lb with 
+      | None -> ()
+      | Some lb -> for i=1 to n do x.{i} <- max lb.{i} x.{i} done
+    end;
+    begin match ub with 
+      | None -> ()
+      | Some ub -> for i=1 to n do x.{i} <- min ub.{i} x.{i} done
+    end;
+
     if not (stop t cost) then (
       let cost = f_df x g in
       iterate (t+1) cost) else cost in

@@ -1,7 +1,7 @@
 open Lacaml.D
 
 
-let min ~eta ~epsilon ~beta1 ~beta2 ~stop f_df x =
+let min ?(eta=0.002) ?(epsilon=10E-8) ?(beta1=0.9) ?(beta2=0.999) ~stop f_df x =
   let n = Vec.dim x in
   let g = Vec.make0 n in
   let g2 = Vec.make0 n in

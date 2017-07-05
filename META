@@ -1,5 +1,5 @@
 description = "ADAM gradient descent"
-requires = "math"
+requires = "lacaml"
 version = "1"
 archive(byte) = "adam.cma"
 archive(native) = "adam.cmxa"

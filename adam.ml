@@ -1,5 +1,4 @@
-open Math
-open Core
+open Lacaml.D
 
 
 let min ~eta ~epsilon ~beta1 ~beta2 ~stop f_df x =

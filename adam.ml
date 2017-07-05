@@ -1,7 +1,8 @@
+open Printf
 open Lacaml.D
 
 
-let min ?(eta=0.002) ?(epsilon=10E-8) ?(beta1=0.9) ?(beta2=0.999) ?lb ?ub ~stop f_df x =
+let min ?(eta=0.002) ?(epsilon=10E-8) ?(beta1=0.9) ?(beta2=0.999) ?lb ?ub ?clip ~stop f_df x =
   let n = Vec.dim x in
   let g = Vec.make0 n in
   let g2 = Vec.make0 n in
@@ -11,6 +12,16 @@ let min ?(eta=0.002) ?(epsilon=10E-8) ?(beta1=0.9) ?(beta2=0.999) ?lb ?ub ~stop 
   let vhat = Vec.make0 n in
   let tmp1 = Vec.make0 n in
   let tmp2 = Vec.make0 n in
+
+  let f_df = match clip with
+    | None -> f_df
+    | Some alpha -> (fun x g ->
+        let cost = f_df x g in
+        let g_norm = sqrt (Vec.sqr_nrm2 g) in
+        if g_norm > alpha then (printf "CLIPPING GRADIENT\n%!"; scal (alpha /. g_norm) g);
+        cost
+      ) in
+
 
   let rec iterate t cost =
     Vec.mul ~z:g2 g g |> ignore;

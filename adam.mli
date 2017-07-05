@@ -6,7 +6,7 @@ open Lacaml.D
     @param beta1 (default=0.9)
     @param beta2 (default=0.999) *)
 val min: ?eta:float -> ?epsilon:float -> ?beta1:float -> ?beta2:float 
-  -> ?lb:vec -> ?ub:vec
+  -> ?lb:vec -> ?ub:vec -> ?clip:float
   -> stop:(int -> float -> bool) 
   -> (vec -> vec -> float) -> vec -> float
 
